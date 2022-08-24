@@ -108,36 +108,28 @@ if (paypal.HostedFields.isEligible()) {
               "card-billing-address-country"
             ).value,
           },
-          vault: document.querySelector('#vault').checked,
-        }).then(() => {
+          contingencies: ['SCA_ALWAYS'],
+        }).then(function(payload){
+          console.log(payload);
+          let orderId = payload.orderId;
           fetch(`/api/orders/${orderId}/capture`, {
-            method: "post",
-          })
-            .then((res) => res.json())
-            .then((orderData) => {
-              // Two cases to handle:
-              //   (1) Other non-recoverable errors -> Show a failure message
-              //   (2) Successful transaction -> Show confirmation or thank you
-              // This example reads a v2/checkout/orders capture response, propagated from the server
-              // You could use a different API or structure for your 'orderData'
-              const errorDetail =
-                Array.isArray(orderData.details) && orderData.details[0];
-              if (errorDetail) {
-                var msg = "Sorry, your transaction could not be processed.";
-                if (errorDetail.description)
-                  msg += "\n\n" + errorDetail.description;
-                if (orderData.debug_id) msg += " (" + orderData.debug_id + ")";
-                return alert(msg); // Show a failure message
-              }
-              // Show a success message or redirect
-              alert("Transaction completed!");
-            });
-        })
-        .catch((err) => {
-          alert("Payment could not be captured! " + JSON.stringify(err));
-        });
-    });
-  });
+          method: 'post',
+          }).then(resp=>resp.json())
+          .then(() => {
+          let capturePayment = false; 
+          if( payload.liabilityShift === 'POSSIBLE') {
+          capturePayment = true;
+          }
+          if (capturePayment) {
+          console.log("capturePayment")
+          }else {
+          alert("Auth failed in card")
+          
+          }
+          });
+          });
+          });
+          });
 } else {
   // Hides card fields if the merchant isn't eligible
   document.querySelector("#card-form").style = "display: block";
