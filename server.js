@@ -69,7 +69,7 @@ app.post("/api/orders/:orderID/capture", async (req, res) => {
   }
 });
 
-app.listen(8888);
+app.listen(8888,"0.0.0.0");
 
 
 
